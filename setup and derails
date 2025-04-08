@@ -1,0 +1,76 @@
+setup and Installation
+Step 1: Create the project directory and files
+bashCopy# Create project directories
+mkdir -p spotify_mood_recommender/app spotify_mood_recommender/tests
+
+# Navigate to the project folder
+cd spotify_mood_recommender
+
+# Create empty files for our modules
+touch app/__init__.py app/main.py app/spotify_client.py app/nlp_model.py app/config.py
+touch tests/__init__.py tests/test_app.py
+touch Dockerfile requirements.txt README.md .env
+Step 2: Set up the environment file
+Create an .env file with the following content, replacing the placeholder values with your actual Spotify API credentials:
+CopySPOTIFY_CLIENT_ID=your_spotify_client_id
+SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+SPOTIFY_REDIRECT_URI=http://localhost:8000/callback
+SECRET_KEY=your_secret_key_for_session_encryption
+You'll need to create a Spotify Developer account and register an application to get these credentials:
+
+Go to https://developer.spotify.com/dashboard/
+Create a new application
+Note your Client ID and Client Secret
+Add http://localhost:8000/callback to your Redirect URIs in the app settings
+
+Step 3: Install required packages locally
+bashCopy# Create a virtual environment
+python -m venv venv
+
+# Activate the virtual environment
+# For Windows:
+venv\Scripts\activate
+# For macOS/Linux:
+source venv/bin/activate
+
+# Install the packages from requirements.txt
+pip install -r requirements.txt
+Running the Application
+Method 1: Run directly with Python
+bashCopy# Make sure you're in the project root directory and virtual environment is activated
+cd spotify_mood_recommender
+uvicorn app.main:app --reload
+The application will start and be accessible at http://localhost:8000.
+Method 2: Run with Docker
+If you have Docker installed on your system:
+bashCopy# Build the Docker image
+docker build -t spotify-mood-recommender .
+
+# Run the Docker container
+docker run -p 8000:8000 --env-file .env spotify-mood-recommender
+This will start the application in a Docker container, accessible at http://localhost:8000.
+Using the Application
+
+Access the application: Open your browser and go to http://localhost:8000/docs to see the FastAPI documentation.
+Authenticate with Spotify: Navigate to http://localhost:8000/login to start the Spotify authentication flow.
+Generate a mood-based playlist: Once authenticated, use the /create-mood-playlist endpoint with a mood description like "I'm feeling energetic and ready to work out".
+Refine the playlist: Use the /refine-playlist endpoint with instructions like "Make it more upbeat" to modify an existing playlist.
+
+Running Tests
+bashCopy# Make sure your virtual environment is activated
+pytest tests/
+This will run all the tests in the tests directory.
+About the Files
+requirements.txt
+This file lists all the Python packages needed for the application. The installation command pip install -r requirements.txt reads this file and installs all the listed packages.
+Dockerfile
+A Dockerfile is a script that contains instructions on how to build a Docker container. Docker containers are lightweight, standalone, executable packages that include everything needed to run the application.
+Unit Tests (test_app.py)
+Unit tests verify that individual components of your application work as expected. They help catch bugs early and ensure that changes don't break existing functionality.
+Troubleshooting
+
+Spotify API Rate Limits: If you encounter 429 errors, the application will automatically retry with exponential backoff, but you might need to wait before making more requests.
+Authentication Issues: Ensure your Spotify API credentials are correct in the .env file and that you've set up the correct redirect URI in your Spotify Developer Dashboard.
+NLP Model Errors: If the mood detection isn't working, make sure you have enough disk space to download the pre-trained models (approximately 300MB).
+Port Conflicts: If port 8000 is already in use, you can specify a different port:
+bashCopyuvicorn app.main:app --reload --port 8001
